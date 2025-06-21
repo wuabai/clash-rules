@@ -12,6 +12,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          persist-credentials: true   # 允许后续 git push 使用 GITHUB_TOKEN
 
       - name: Update README.md to refresh timestamp
         run: |
