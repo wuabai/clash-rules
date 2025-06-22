@@ -1,9 +1,9 @@
-name: Refresh Updated At
+name: Force Refresh updated_at
 
 on:
   schedule:
-    - cron: '1 16 * * *'   # 每天 UTC 16:01，即北京时间 00:01
-  workflow_dispatch:         # 支持手动触发
+    - cron: '1 16 * * *'  # UTC 16:01 = 北京时间 00:01
+  workflow_dispatch:
 
 jobs:
   refresh:
@@ -13,13 +13,17 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          persist-credentials: true   # 允许后续 git push 使用 GITHUB_TOKEN
+          persist-credentials: true  # 让 GITHUB_TOKEN 能用于 push
 
-      - name: Update README.md to refresh timestamp
+      - name: Write UTC timestamp to file
         run: |
-          echo "" >> README.md
+          mkdir -p .github
+          echo "Last updated: $(date -u)" > .github/updated.txt
+          
+      - name: Commit and push changes
+        run: |
           git config user.name "github-actions[bot]"
           git config user.email "139797821+wuabai@users.noreply.github.com"
-          git add README.md
-          git commit -m "chore: refresh updated_at [skip ci]" || echo "Nothing to commit"
+          git add .github/updated.txt
+          git commit -m "chore: force update timestamp $(date -u) [skip ci]" || echo "Nothing to commit"
           git push
